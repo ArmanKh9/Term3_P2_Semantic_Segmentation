@@ -129,9 +129,9 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param input_image: TF Placeholder for input images
     :param correct_label: TF Placeholder for label images
     :param keep_prob: TF Placeholder for dropout keep probability
-    :param learning_rate: TF Placeholder for learning rate
+    :param learning_rate: TF Placeholder for learning rate.
     """
-    # TODO: Implement function
+    # TODO: Implement function  
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
