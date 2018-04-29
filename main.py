@@ -151,7 +151,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
                 _, loss = sess.run([train_op, cross_entropy_loss], feed_dict={input_image: image, correct_label: label,
                                                                     keep_prob: 0.7, learning_rate: 0.0001})
                 print("Loss: = {:.3f}".format(loss))
-            print("end of epoch")
+            print("end of epoch", epoch)
             
 tests.test_train_nn(train_nn)
 
@@ -179,8 +179,8 @@ def run():
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
-        epochs = 7
-        batch_size = 4
+        epochs = 40
+        batch_size = 6
 
         # TODO: Build NN using load_vgg, layers, and optimize function
         
