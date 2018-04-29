@@ -35,6 +35,7 @@ def load_vgg(sess, vgg_path):
     vgg_layer7_out_tensor_name = 'layer7_out:0'
 
     tf.saved_model.loader.load(sess, [vgg_tag], vgg_path)
+    
     graph = tf.get_default_graph()
     w1 = graph.get_tensor_by_name(vgg_input_tensor_name)
     keep_prob = graph.get_tensor_by_name(vgg_keep_prob_tensor_name)
@@ -176,7 +177,7 @@ def run():
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
-        epochs = 1
+        epochs = 10
         batch_size = 5
 
         # TODO: Build NN using load_vgg, layers, and optimize function
@@ -195,6 +196,8 @@ def run():
         logits, train_op, cross_entropy_loss = optimize(layer_output, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
+
+        sess.run(tf.global_variables_initializer())
 
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate)
