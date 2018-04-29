@@ -43,7 +43,7 @@ def load_vgg(sess, vgg_path):
     vgg_layer4_out = graph.get_tensor_by_name(vgg_layer4_out_tensor_name)
     vgg_layer7_out = graph.get_tensor_by_name(vgg_layer7_out_tensor_name)
 
-    return w1, keep_prob, vgg_layer3_out , vgg_layer4_out, vgg_layer7_out
+    return w1, keep_prob, vgg_layer3_out, vgg_layer4_out, vgg_layer7_out
 
 tests.test_load_vgg(load_vgg, tf)
 
@@ -90,7 +90,8 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
 
     #skip layer - adding convoluted form of output of layer 3 in the ecnoder to output of a layer in decoder with the same size
     skip_layer3 = tf.add(layer4_transpose, vgg_layer3_2class)
-    
+
+    #upsample
     layer3_transpose = tf.layers.conv2d_transpose(skip_layer3, num_classes, 16, strides=(8,8), padding='same',
                                          kernel_initializer=tf.truncated_normal_initializer(stddev = 0.01),
                                          kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
@@ -149,7 +150,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             for image, label in get_batches_fn(batch_size):
                 #Training
                 _, loss = sess.run([train_op, cross_entropy_loss], feed_dict={input_image: image, correct_label: label,
-                                                                    keep_prob: 0.7, learning_rate: 0.0001})
+                                                                    keep_prob: 0.5, learning_rate: 0.0001})
                 print("Loss: = {:.3f}".format(loss))
             print("end of epoch", epoch)
             
@@ -173,23 +174,22 @@ def run():
     with tf.Session() as sess:
         # Path to vgg model
         vgg_path = os.path.join(data_dir, 'vgg')
+        
         # Create function to get batches
         get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape)
 
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
-        epochs = 40
-        batch_size = 6
+        epochs = 2
+        batch_size = 3
 
         # TODO: Build NN using load_vgg, layers, and optimize function
-        
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
         
         layer_output = layers(layer3_out, layer4_out, layer7_out, num_classes)
         
         ##-->> optimize function here (that is defines above)
-
         # TF placeholders
         correct_label = tf.placeholder(tf.int32, [None, None, None, num_classes], name='correct_label')
 
@@ -198,13 +198,11 @@ def run():
         logits, train_op, cross_entropy_loss = optimize(layer_output, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
-
         sess.run(tf.global_variables_initializer())
 
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate)
         
-
         # TODO: Save inference data using helper.save_inference_samples
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
