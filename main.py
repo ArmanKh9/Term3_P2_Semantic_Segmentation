@@ -58,33 +58,39 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     """
     # TODO: Implement function
     #1x1 conv - This reduces the number of filters down to number of classes (#filters=#classes)
-    vgg_layer7_numclass = tf.layers.conv2d(vgg_layer7_out, num_classes, 1,
-                                padding = 'same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    vgg_layer7_numclass = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding = 'same',
+                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #upsample
     output = tf.layers.conv2d_transpose(vgg_layer7_numclass, num_classes, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #1x1 conv of vgg_layer4_out in order to be able to pass it to decoder for "skip layer" operation
-    vgg_layer4_2class = tf.layers.conv2d(vgg_layer4_out, num_classes, 1,
-                                padding = 'same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    vgg_layer4_2class = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding = 'same',
+                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #skip layer - adding convoluted form of output of layer 4 in the ecnoder to output of a layer in decoder with the same size
     output = tf.add(output, vgg_layer4_2class)
 
     #upsample
     output = tf.layers.conv2d_transpose(output, num_classes, 4, 2, padding='same',
-                                        kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #1x1 conv of vgg_layer3_out in order to be able to pass it to decoder for "skip layer" operation
-    vgg_layer3_2class = tf.layers.conv2d(vgg_layer3_out, num_classes, 1,
-                            padding = 'same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    vgg_layer3_2class = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding = 'same',
+                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #skip layer - adding convoluted form of output of layer 3 in the ecnoder to output of a layer in decoder with the same size
     output = tf.add(output, vgg_layer3_2class)
     
     output = tf.layers.conv2d_transpose(output, num_classes, 16, 8, padding='same',
-                                    kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
     return output
 
 tests.test_layers(layers)
@@ -170,11 +176,10 @@ def run():
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
-        epochs = 50
-        batch_size = 6
+        epochs = 10
+        batch_size = 5
 
         # TODO: Build NN using load_vgg, layers, and optimize function
-
         
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
         
