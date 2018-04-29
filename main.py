@@ -58,40 +58,36 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
+    
     #1x1 conv - This reduces the number of filters down to number of classes (#filters=#classes)
-    vgg_layer7_numclass = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding = 'same',
-                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
-                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
+    vgg_layer7_2class = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding = 'same',
+                                           kernel_initializer=tf.truncated_normal_initializer(stddev = 1e-3))
+    
+    #1x1 conv - This reduces the number of filters down to number of classes (#filters=#classes)
+    vgg_layer4_2class = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding = 'same',
+                                           kernel_initializer=tf.truncated_normal_initializer(stddev = 1e-3))
+
+    #1x1 conv - This reduces the number of filters down to number of classes (#filters=#classes)
+    vgg_layer3_2class = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding = 'same',
+                                           kernel_initializer=tf.truncated_normal_initializer(stddev = 1e-3))
 
     #upsample
-    layer7_transpose = tf.layers.conv2d_transpose(vgg_layer7_numclass, num_classes, 4, 2, padding='same',
-                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
-                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
-
-    #1x1 conv of vgg_layer4_out in order to be able to pass it to decoder for "skip layer" operation
-    vgg_layer4_2class = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding = 'same',
-                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
-                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
+    layer7_transpose = tf.layers.conv2d_transpose(vgg_layer7_2class, num_classes, 4, strides=(2,2), padding='same',
+                                           kernel_initializer=tf.truncated_normal_initializer(stddev = 1e-3))
 
     #skip layer - adding convoluted form of output of layer 4 in the ecnoder to output of a layer in decoder with the same size
     skip_layer4 = tf.add(layer7_transpose, vgg_layer4_2class)
 
     #upsample
-    layer4_transpose = tf.layers.conv2d_transpose(skip_layer4, num_classes, 4, 2, padding='same',
-                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
-                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
+    layer4_transpose = tf.layers.conv2d_transpose(skip_layer4, num_classes, 4, strides=(2,2), padding='same',
+                                           kernel_initializer=tf.truncated_normal_initializer(stddev = 1e-3))
 
-    #1x1 conv of vgg_layer3_out in order to be able to pass it to decoder for "skip layer" operation
-    vgg_layer3_2class = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding = 'same',
-                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
-                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #skip layer - adding convoluted form of output of layer 3 in the ecnoder to output of a layer in decoder with the same size
     skip_layer3 = tf.add(layer4_transpose, vgg_layer3_2class)
     
-    layer3_transpose = tf.layers.conv2d_transpose(skip_layer3, num_classes, 16, 8, padding='same',
-                                           kernel_initializer= tf.random_normal_initializer(stddev=0.01),
-                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
+    layer3_transpose = tf.layers.conv2d_transpose(skip_layer3, num_classes, 16, strides=(8,8), padding='same',
+                                           kernel_initializer=tf.truncated_normal_initializer(stddev = 1e-3))
     return layer3_transpose
 
 tests.test_layers(layers)
