@@ -64,7 +64,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
                                            kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #upsample
-    output = tf.layers.conv2d_transpose(vgg_layer7_numclass, num_classes, 4, 2, padding='same',
+    layer7_transpose = tf.layers.conv2d_transpose(vgg_layer7_numclass, num_classes, 4, 2, padding='same',
                                            kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                            kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
@@ -74,10 +74,10 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
                                            kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #skip layer - adding convoluted form of output of layer 4 in the ecnoder to output of a layer in decoder with the same size
-    output = tf.add(output, vgg_layer4_2class)
+    skip_layer4 = tf.add(layer7_transpose, vgg_layer4_2class)
 
     #upsample
-    output = tf.layers.conv2d_transpose(output, num_classes, 4, 2, padding='same',
+    layer4_transpose = tf.layers.conv2d_transpose(skip_layer4, num_classes, 4, 2, padding='same',
                                            kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                            kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
@@ -87,12 +87,12 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
                                            kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
     #skip layer - adding convoluted form of output of layer 3 in the ecnoder to output of a layer in decoder with the same size
-    output = tf.add(output, vgg_layer3_2class)
+    skip_layer3 = tf.add(layer4_transpose, vgg_layer3_2class)
     
-    output = tf.layers.conv2d_transpose(output, num_classes, 16, 8, padding='same',
+    layer3_transpose = tf.layers.conv2d_transpose(skip_layer3, num_classes, 16, 8, padding='same',
                                            kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                            kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
-    return output
+    return layer3_transpose
 
 tests.test_layers(layers)
 
@@ -147,7 +147,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             for image, label in get_batches_fn(batch_size):
                 #Training
                 _, loss = sess.run([train_op, cross_entropy_loss], feed_dict={input_image: image, correct_label: label,
-                                                                    keep_prob: 0.5, learning_rate: 0.0009})
+                                                                    keep_prob: 0.5, learning_rate: 0.0001})
                 print("Loss: = {:.3f}".format(loss))
             print("end of epoch")
             
@@ -177,7 +177,7 @@ def run():
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
-        epochs = 10
+        epochs = 6
         batch_size = 5
 
         # TODO: Build NN using load_vgg, layers, and optimize function
