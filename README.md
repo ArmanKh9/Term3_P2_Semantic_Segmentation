@@ -52,10 +52,10 @@ GitHub also provides a [tutorial](https://guides.github.com/features/mastering-m
 In this project, a fully convolutional neural network (FCN) is being trained and used to classify each pixel of an image as road or not road and mark it in green.
 
 ## Pre-Trained VGG model
-A pre-trained VGG-16 model (frozen model) has been used expedite the process of developing the encoder part of the FCN model. The VGG-16 model used here is specifically trained on Kitty dataset. The VGG-16 model returns a 1x1 convoluted tensor in lieu of a fully connected layer. This preserves the spatial information that is necessary for upscaling and in general decoding each image.
+A pre-trained VGG-16 model (frozen model) has been used to expedite the process of developing encoder part of the FCN model. The VGG-16 model used here is specifically trained on Kitty dataset. The VGG-16 model returns a 1x1 convoluted tensor in lieu of a fully connected layer. This preserves the spatial information that is necessary for upscaling, and in general, decoding each image.
 
 ## Decoder
-The encoder part of the FCN takes in the VGG-16 output and upscale it to an image with the same size as the input image. It also perform skip layer operation on two layers in order to better detect edges of the road. In the skip layer operation, output of some layers in the encoder part are extracted and passed to the decoder section to be added to a tensor with the same size. However, these extracted layers need to be reshaped in order to have the same depth as the number of classes.
+The encoder part of the FCN takes in the VGG-16 output and upscale it to an image with the same size as the input image through multiple layers. It also perform skip layer operation on two layers in order to better detect edges of the road. In the skip layer operation, output of some layers in the encoder part are extracted and passed to the decoder section to be added to a tensor with the same size. However, these extracted layers need to be reshaped in order to have the same depth as the number of classes.
 
 Decoder section:
 
