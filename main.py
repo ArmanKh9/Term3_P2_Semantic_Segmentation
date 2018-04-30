@@ -183,7 +183,7 @@ def run():
 
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
-        epochs = 30
+        epochs = 40
         batch_size = 6
 
         # TF placeholders
